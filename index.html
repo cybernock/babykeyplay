@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no,maximum-scale=1">
+  <title>BabyKeyPlay — Ultra Keyboard Smash Toy for Babies & Toddlers</title>
+  <meta name="description" content="BabyKeyPlay is the ultimate fullscreen keyboard smash toy for babies and toddlers. GPU-accelerated particles, generative music, neon trails, and multiplayer smash mode.">
+  <link rel="canonical" href="https://www.babykeyplay.online/">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BabyKeyPlay">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BabyKeyPlay">
+  <meta property="og:title" content="BabyKeyPlay — Ultra Keyboard Smash Toy for Babies & Toddlers">
+  <meta property="og:description" content="GPU-accelerated particles, generative music, neon trails, multiplayer smash mode. The ultimate baby keyboard toy.">
+  <meta property="og:url" content="https://www.babykeyplay.online/">
+  <meta property="og:image" content="https://www.babykeyplay.online/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BabyKeyPlay — Ultra Keyboard Smash Toy">
+  <meta name="twitter:description" content="GPU particles, generative music, neon trails. The ultimate baby keyboard smash toy.">
+  <meta name="twitter:image" content="https://www.babykeyplay.online/og-image.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "BabyKeyPlay",
+    "url": "https://www.babykeyplay.online/",
+    "description": "The ultimate fullscreen keyboard smash toy for babies and toddlers with GPU-accelerated particles, generative music, neon trails, and multiplayer mode.",
+    "applicationCategory": "GameApplication",
+    "applicationSubCategory": "Baby Toy",
+    "operatingSystem": "Any",
+    "browserRequirements": "WebGL2, modern browser",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "audience": { "@type": "PeopleAudience", "suggestedMinAge": 0, "suggestedMaxAge": 5 },
+    "creator": { "@type": "Organization", "name": "BabyKeyPlay" }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="gpu-canvas" aria-hidden="true"></canvas>
+  <canvas id="trail-canvas" aria-hidden="true"></canvas>
+  <canvas id="ui-canvas" aria-label="BabyKeyPlay interactive canvas"></canvas>
+
+  <div id="fps-counter" class="fps-counter" aria-hidden="true">
+    <span id="fps-value">60</span> FPS
+    <span id="particle-count">0</span> particles
+    <span id="gpu-badge" class="gpu-badge">GPU</span>
+  </div>
+
+  <section id="welcome-overlay" class="welcome-overlay" aria-label="Welcome">
+    <div class="welcome-shell">
+      <div class="welcome-hero">
+        <div class="logo-glow" aria-hidden="true"></div>
+        <h1 class="hero-title">
+          <span class="title-baby">Baby</span><span class="title-key">Key</span><span class="title-play">Play</span>
+        </h1>
+        <p class="hero-tagline">The ultimate keyboard smash toy for babies & toddlers</p>
+
+        <div class="hero-features">
+          <span class="feature-chip"><span class="chip-icon">⚡</span> 100K GPU Particles</span>
+          <span class="feature-chip"><span class="chip-icon">🌈</span> Neon Trails</span>
+          <span class="feature-chip"><span class="chip-icon">🎵</span> Generative Music</span>
+          <span class="feature-chip"><span class="chip-icon">👥</span> Multiplayer Smash</span>
+          <span class="feature-chip"><span class="chip-icon">📱</span> Installable PWA</span>
+          <span class="feature-chip"><span class="chip-icon">🛡️</span> Baby Safe</span>
+        </div>
+
+        <button id="start-btn" class="start-btn" type="button">
+          <span class="start-btn-glow" aria-hidden="true"></span>
+          <span class="start-btn-text">🚀 Start Smashing!</span>
+        </button>
+
+        <div class="hero-modes">
+          <button class="mode-btn active" data-mode="solo" type="button">Solo</button>
+          <button class="mode-btn" data-mode="multi" type="button">👥 Multiplayer</button>
+        </div>
+
+        <div id="multi-setup" class="multi-setup" hidden>
+          <p class="multi-info">Share the room code with another device to smash together!</p>
+          <div class="multi-actions">
+            <button id="create-room-btn" class="multi-btn" type="button">Create Room</button>
+            <div class="multi-divider">or</div>
+            <div class="join-row">
+              <input id="room-code-input" class="room-code-input" type="text" maxlength="6" placeholder="ROOM CODE" autocomplete="off" spellcheck="false">
+              <button id="join-room-btn" class="multi-btn" type="button">Join</button>
+            </div>
+          </div>
+          <p id="multi-status" class="multi-status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="welcome-footer" data-no-start>
+        <div class="install-prompt" id="install-prompt" hidden>
+          <p>📲 Install BabyKeyPlay for instant offline access</p>
+          <button id="install-btn" class="install-btn" type="button">Install App</button>
+        </div>
+
+        <div class="theme-preview-row" aria-label="Theme selector">
+          <button class="theme-preview active" data-theme="cyber" type="button">
+            <span class="theme-swatch" style="background:linear-gradient(135deg,#0ff,#f0f)"></span>
+            <span>Cyber</span>
+          </button>
+          <button class="theme-preview" data-theme="aurora" type="button">
+            <span class="theme-swatch" style="background:linear-gradient(135deg,#0f6,#06f)"></span>
+            <span>Aurora</span>
+          </button>
+          <button class="theme-preview" data-theme="lava" type="button">
+            <span class="theme-swatch" style="background:linear-gradient(135deg,#f80,#f00)"></span>
+            <span>Lava</span>
+          </button>
+          <button class="theme-preview" data-theme="cosmic" type="button">
+            <span class="theme-swatch" style="background:linear-gradient(135deg,#a0f,#ff0)"></span>
+            <span>Cosmic</span>
+          </button>
+          <button class="theme-preview" data-theme="ocean" type="button">
+            <span class="theme-swatch" style="background:linear-gradient(135deg,#0af,#0fa)"></span>
+            <span>Ocean</span>
+          </button>
+          <button class="theme-preview" data-theme="candy" type="button">
+            <span class="theme-swatch" style="background:linear-gradient(135deg,#f6a,#fa0)"></span>
+            <span>Candy</span>
+          </button>
+        </div>
+
+        <p class="parent-hint">👪 Parent panel: hold top-left 2s or type <kbd>parent</kbd></p>
+      </div>
+    </div>
+  </section>
+
+  <div id="multiplayer-hud" class="multiplayer-hud" hidden aria-hidden="true">
+    <div class="hud-room">Room: <span id="hud-room-code">—</span></div>
+    <div class="hud-players">Players: <span id="hud-player-count">1</span></div>
+    <div class="hud-combo">Combo: <span id="hud-combo">0</span>×</div>
+  </div>
+
+  <div id="combo-display" class="combo-display" hidden aria-hidden="true">
+    <span id="combo-number">0</span>
+    <span class="combo-label">COMBO!</span>
+  </div>
+
+  <aside id="parent-panel" class="parent-panel" hidden aria-hidden="true">
+    <h2>👪 Parent Panel</h2>
+
+    <label class="panel-row">
+      <span>🎵 Music</span>
+      <input id="music-toggle" type="checkbox" checked>
+    </label>
+    <label class="panel-row">
+      <span>🔊 SFX</span>
+      <input id="sfx-toggle" type="checkbox" checked>
+    </label>
+    <label class="panel-row">
+      <span>✨ Neon trails</span>
+      <input id="trails-toggle" type="checkbox" checked>
+    </label>
+    <label class="panel-row">
+      <span>🎨 Theme</span>
+      <select id="theme-select">
+        <option value="cyber">⚡ Cyber</option>
+        <option value="aurora">🌌 Aurora</option>
+        <option value="lava">🌋 Lava</option>
+        <option value="cosmic">🪐 Cosmic</option>
+        <option value="ocean">🌊 Ocean</option>
+        <option value="candy">🍬 Candy</option>
+      </select>
+    </label>
+    <label class="panel-row">
+      <span>💨 Particle density</span>
+      <select id="density-select">
+        <option value="low">Low (25K)</option>
+        <option value="medium">Medium (50K)</option>
+        <option value="high" selected>High (100K)</option>
+        <option value="ultra">Ultra (200K)</option>
+      </select>
+    </label>
+    <label class="panel-row">
+      <span>🐢 Reduce motion</span>
+      <input id="motion-toggle" type="checkbox">
+    </label>
+    <label class="panel-row">
+      <span>😀 Emoji mode</span>
+      <input id="emoji-toggle" type="checkbox">
+    </label>
+    <label class="panel-row">
+      <span>📊 Show FPS</span>
+      <input id="fps-toggle" type="checkbox">
+    </label>
+
+    <div class="panel-actions">
+      <button id="exit-fs-btn" type="button">⤢ Exit Fullscreen</button>
+      <button id="close-panel-btn" type="button">✅ Close</button>
+    </div>
+  </aside>
+
+  <div id="ad-container" class="ad-container" hidden aria-hidden="true">
+    <!-- Monetization-ready ad slot -->
+  </div>
+
+  <noscript>
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a1a;color:#fff;font-family:sans-serif;text-align:center;padding:2rem">
+      <div>
+        <h1>BabyKeyPlay</h1>
+        <p>Please enable JavaScript for the full interactive experience.</p>
+      </div>
+    </div>
+  </noscript>
+
+  <script src="gpu-particles.js"></script>
+  <script src="audio-engine.js"></script>
+  <script src="multiplayer.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
